@@ -60,13 +60,9 @@ function getTimeFormatted(): string {
     return `${mapped.get("year")}-${mapped.get("month")}-${mapped.get("day")} ${mapped.get("hour")}:${mapped.get("minute")} ${mapped.get("dayPeriod")}`;
 }
 
-export async function generateKey(): Promise<ArrayBuffer> {
-    // const key = importKey()
+export async function generateKey(): Promise<String> {
     const encoder = new TextEncoder();
-    // crypto.subtle.sign("RSASSA-PKCS1-v1_5", key, encoder.encode(RAW_SECRET_KEY + getTimeFormatted())).then((out) => {
-    //     console.log(_arrayBufferToBase64(out));
-    // })
 
-    return crypto.subtle.sign("RSASSA-PKCS1-v1_5", key, encoder.encode(RAW_SECRET_KEY + getTimeFormatted()))
-    // return getTimeFormat();
+    const buf = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", key, encoder.encode(RAW_SECRET_KEY + getTimeFormatted()))
+    return _arrayBufferToBase64(buf)
 }
