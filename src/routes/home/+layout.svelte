@@ -1,4 +1,6 @@
 <script>
+    import Button from "$lib/components/Button.svelte";
+
     let {children} = $props();
 </script>
 
@@ -6,9 +8,9 @@
     <h1>Seirea</h1>
 
     <div class="flex flex-row justify-between gap-4">
-        <a href="/home/classes">Classes</a>
-        <a href="/home/grades">Grades</a>
-        <a href="/home/settings">Settings</a>
+        <Button href="/home/classes">Classes</Button>
+        <Button href="/home/grades">Grades</Button>
+        <Button href="/home/settings">Settings</Button>
     </div>
 </nav>
 
