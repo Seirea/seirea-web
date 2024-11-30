@@ -41,8 +41,6 @@ function importKey() {
 	);
 }
 
-const key = await importKey();
-
 export function getTimeFormatted(): string {
 	const now = new Date();
 
@@ -67,6 +65,7 @@ export async function generateKeyFromTimestamp(
 	timestamp: string
 ): Promise<string> {
 	const encoder = new TextEncoder();
+	const key = await importKey();
 
 	const buf = await crypto.subtle.sign(
 		"RSASSA-PKCS1-v1_5",
