@@ -43,6 +43,7 @@ export class AeriesApi {
 			body: JSON.stringify(authData),
 		});
 		let data = (await resp.json()) as AuthResponseData;
+		console.log(data);
 		this.token = data.AccessToken;
 		this.student = data.Students[0];
 	}
