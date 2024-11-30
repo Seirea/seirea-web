@@ -1,3 +1,3 @@
 // place files you want to import through the `$lib` alias in this folder.
-export * from "./api";
-export * from "./auth/keygen";
+export * as api from "./api";
+export * as keygen from "./auth/keygen";
