@@ -36,9 +36,10 @@ export class AeriesApi {
 			secretKey,
 			timestamp,
 			password,
-			username
+			username,
+			new URL(`${this.apiUrl}/authentication`)
 		);
-		let resp = await fetch(`${this.apiUrl}/authentication`, {
+		let resp = await fetch(`/proxy`, {
 			method: "POST",
 			body: JSON.stringify(authData),
 		});
