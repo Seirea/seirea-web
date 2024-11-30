@@ -1,10 +1,23 @@
 <script lang="ts">
-  import { generateKey } from "../lib/auth/keygen";
-  console.log(generateKey());
+  import { goto } from "$app/navigation";
+  import { onMount } from "svelte";
+
+  onMount(() => {
+    if (
+      localStorage.getItem("username") != null &&
+      localStorage.getItem("password") != null
+    ) {
+      goto("/home");
+    }
+  });
 
   function handleLoginSubmit(e: SubmitEvent) {
     const formData = new FormData(e.target as HTMLFormElement);
-    console.log(formData);
+
+    localStorage.setItem("username", formData.get("email") as string);
+    localStorage.setItem("password", formData.get("password") as string);
+
+    goto("/home");
   }
 </script>
 
