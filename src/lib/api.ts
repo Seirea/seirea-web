@@ -57,14 +57,14 @@ export class AeriesApi {
 			method: "GET",
 		});
 	}
-	async getHomePage(): Promise<Assignment[]> {
+	async getHomePage(): Promise<unknown> {
 		if (this.student === null) throw new UninitializedApiError();
 		let resp = await fetch(
 			this.genRequest(
 				`${this.apiUrl}/student/${this.student.Demographics.StudentID}`
 			)
 		);
-		let data: Assignment[] = await resp.json();
+		let data = await resp.json();
 
 		return data;
 	}
