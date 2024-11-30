@@ -78,7 +78,7 @@ export interface PasswordRule {
 	RequirePasswordChangeMessage: string;
 }
 
-export interface AuthResponseData {
+export interface AuthResponseSuccess {
 	AccessToken: string;
 	AeriesCommunications: boolean;
 	DefaultStudentID: number;
@@ -91,6 +91,15 @@ export interface AuthResponseData {
 	Titan: boolean;
 	UserType: string;
 }
+
+export interface AuthResponseFail {
+	error: string;
+	success: false;
+}
+export type AuthResponseData = {
+	success: boolean;
+	data: AuthResponseSuccess | AuthResponseFail;
+};
 
 export interface Assignment {
 	name: string;
