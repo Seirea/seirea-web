@@ -22,7 +22,6 @@
     } else {
       const api = new AeriesApi(new URL(apiUrl));
       api.authenticate(username, password);
-      console.log(api.getHomePage());
     }
   });
 </script>
