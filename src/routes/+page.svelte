@@ -1,3 +1,8 @@
+<script>
+    import { generateKey } from "../lib/auth/keygen";
+    console.log(generateKey())
+</script>
+
 
 <main class="max-w-xl mx-auto p-4">
     <h1 class="text-4xl font-display">Seirea</h1>
