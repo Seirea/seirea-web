@@ -21,7 +21,7 @@
 
     <input
       type="submit"
-      class="form-input transition-all rounded-md shadow-md hover:border-blue-400 hover:bg-gradient-to-tr hover:from-blue-200 hover:to-red-200 "
+      class="form-input cursor-pointer transition-all rounded-md shadow-md hover:border-blue-400 hover:bg-blue-200"
       name="Log in"
     />
   </form>
