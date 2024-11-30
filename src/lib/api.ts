@@ -8,7 +8,9 @@ import {
 	type Student,
 	type View,
 	AuthRequestData,
+	isFail,
 } from "./api-types";
+
 import { generateKeyFromTimestamp, getTimeFormatted } from "./auth/keygen";
 
 export class UninitializedApiError extends Error {
@@ -45,8 +47,13 @@ export class AeriesApi {
 		});
 		let data = (await resp.json()) as AuthResponseData;
 		console.log(data);
-		this.token = data.AccessToken;
-		this.student = data.Students[0];
+		if (isFail(data)) {
+			console.log("fail!");
+		} else {
+			console.log("success");
+		}
+		// this.token = data.AccessToken;
+		// this.student = data.Students[0];
 	}
 
 	genRequest(url: URL | string, body?: BodyInit): Request {

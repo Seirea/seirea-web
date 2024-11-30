@@ -96,10 +96,12 @@ export interface AuthResponseFail {
 	error: string;
 	success: false;
 }
-export type AuthResponseData = {
-	success: boolean;
-	data: AuthResponseSuccess | AuthResponseFail;
-};
+
+export type AuthResponseData = AuthResponseSuccess | AuthResponseFail;
+
+export function isFail(object: any): object is AuthResponseFail {
+	return "success" in object && !object["success"];
+}
 
 export interface Assignment {
 	name: string;
