@@ -5,11 +5,10 @@
 </script>
 
 <nav class="flex flex-row justify-between p-2">
-    <h1>Seirea</h1>
+    <Button href="/home">Seirea</Button>
 
     <div class="flex flex-row justify-between gap-4">
         <Button href="/home/classes">Classes</Button>
-        <Button href="/home/grades">Grades</Button>
         <Button href="/home/settings">Settings</Button>
     </div>
 </nav>
