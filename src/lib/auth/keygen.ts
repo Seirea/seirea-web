@@ -41,7 +41,7 @@ function importKey() {
 
 const key = await importKey()
 
-function getTimeFormatted(): string {
+export function getTimeFormatted(): string {
     const now = new Date();
 
     const options: Intl.DateTimeFormatOptions = {
@@ -56,13 +56,17 @@ function getTimeFormatted(): string {
     const parts = (new Intl.DateTimeFormat('en-US', options)).formatToParts(now);
     const mapped = new Map(parts.map((obj) => [obj.type, obj.value]));
 
-    // console.log(mapped)
     return `${mapped.get("year")}-${mapped.get("month")}-${mapped.get("day")} ${mapped.get("hour")}:${mapped.get("minute")} ${mapped.get("dayPeriod")}`;
 }
 
-export async function generateKey(): Promise<String> {
+
+export async function generateKeyFromTimestamp(timestamp: string): Promise<String> {
     const encoder = new TextEncoder();
 
-    const buf = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", key, encoder.encode(RAW_SECRET_KEY + getTimeFormatted()))
+    const buf = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", key, encoder.encode(RAW_SECRET_KEY + timestamp))
     return _arrayBufferToBase64(buf)
+}
+
+export async function generateKey(): Promise<String> {
+    return generateKeyFromTimestamp(getTimeFormatted())
 }

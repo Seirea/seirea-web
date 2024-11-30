@@ -8,6 +8,7 @@ import type {
 	Student,
 	View,
 } from "./api-types";
+import { generateKeyFromTimestamp, getTimeFormatted } from "./auth/keygen";
 
 export class UninitializedApiError extends Error {
 	constructor() {
@@ -25,9 +26,13 @@ export class AeriesApi {
 		this.token = null;
 		this.student = null;
 	}
+
 	async authenticate(username: string, password: string) {
 		/* assume it sets `student` & `token` */
+		const timestamp = getTimeFormatted()
+        const secretKey = generateKeyFromTimestamp(getTimeFormatted())
 	}
+
 	genRequest(url: URL | string, body?: BodyInit): Request {
 		let headers = new Headers();
 		if (this.token === null) throw new UninitializedApiError();
