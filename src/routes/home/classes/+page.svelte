@@ -1,1 +1,1 @@
-<h1>Classes</h1>
+<h1 class="text-4xl">Classes</h1>

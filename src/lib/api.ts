@@ -30,7 +30,8 @@ export class AeriesApi {
 		this.student = null;
 	}
 
-	async authenticate(username: string, password: string) {
+	// return true if able to authenticate
+	async authenticate(username: string, password: string): Promise<Boolean> {
 		/* assume it sets `student` & `token` */
 		const timestamp = getTimeFormatted();
 		const secretKey = await generateKeyFromTimestamp(getTimeFormatted());
@@ -41,19 +42,28 @@ export class AeriesApi {
 			username,
 			new URL(`${this.apiUrl}/authentication`)
 		);
+
 		let resp = await fetch(`/proxy`, {
 			method: "POST",
 			body: JSON.stringify(authData),
 		});
+
+		if (!resp.ok) {
+			return false;
+		}
+
 		let data = (await resp.json()) as AuthResponseData;
 		console.log(data);
+
 		if (isFail(data)) {
 			console.log("fail!");
+			return false;
 		} else {
 			console.log("success");
+			this.token = data.AccessToken;
+			this.student = data.Students[0];
+			return true;
 		}
-		// this.token = data.AccessToken;
-		// this.student = data.Students[0];
 	}
 
 	genRequest(url: URL | string, body?: BodyInit): Request {
@@ -66,6 +76,7 @@ export class AeriesApi {
 			method: "GET",
 		});
 	}
+
 	async getHomePage(): Promise<unknown> {
 		if (this.student === null) throw new UninitializedApiError();
 		let resp = await fetch(

@@ -11,7 +11,7 @@
     goto("/");
   }
 
-  onMount(() => {
+  onMount(async () => {
     const username = localStorage.getItem("username");
     const password = localStorage.getItem("password");
     const apiUrl =
@@ -21,7 +21,12 @@
       failedLogin("username or password not set");
     } else {
       const api = new AeriesApi(new URL(apiUrl));
-      api.authenticate(username, password);
+      const authed = await api.authenticate(username, password);
+      if (!authed) {
+        localStorage.clear();
+        alert("Unable to authenticate! Check your Email and Password.");
+        goto("/");
+      }
     }
   });
 </script>
