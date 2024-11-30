@@ -105,3 +105,27 @@ export interface Assignment {
     description: string;
     classname?: string;  
 }
+
+class AuthRequestData {
+    public static AppType: string = "PSP";
+    public static ClientId: string = "q3C/7jHXNOSUKze1RfIgE4jOUpCxXqOQE7U8xfSbJED3Qbrl7aYd2DPldruo29YG6LgnO7AC83ktvqLryBGEdKc8zmmw2TrWCASkRcHxDlo=";
+    public SecretKey: string;
+    public DateTimeStamp: string;
+    public Password: string;
+    public static Platform: string = "android";
+    public UserName: string;
+    public static UserType: string = "Student";
+  
+    constructor(
+      SecretKey: string,
+      DateTimeStamp: string,
+      Password: string,
+      UserName: string,
+    ) {
+      this.SecretKey = SecretKey;
+      this.DateTimeStamp = DateTimeStamp;
+      this.Password = Password;
+      this.UserName = UserName;
+    }
+  }
+  
