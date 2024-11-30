@@ -1,12 +1,13 @@
-import type {
-	Address,
-	Assignment,
-	AuthResponseData,
-	Demographics,
-	PasswordRequirement,
-	PasswordRule,
-	Student,
-	View,
+import {
+	type Address,
+	type Assignment,
+	type AuthResponseData,
+	type Demographics,
+	type PasswordRequirement,
+	type PasswordRule,
+	type Student,
+	type View,
+	AuthRequestData,
 } from "./api-types";
 import { generateKeyFromTimestamp, getTimeFormatted } from "./auth/keygen";
 
@@ -29,8 +30,21 @@ export class AeriesApi {
 
 	async authenticate(username: string, password: string) {
 		/* assume it sets `student` & `token` */
-		const timestamp = getTimeFormatted()
-        const secretKey = generateKeyFromTimestamp(getTimeFormatted())
+		const timestamp = getTimeFormatted();
+		const secretKey = await generateKeyFromTimestamp(getTimeFormatted());
+		let authData = new AuthRequestData(
+			secretKey,
+			timestamp,
+			password,
+			username
+		);
+		let resp = await fetch(`${this.apiUrl}/authentication`, {
+			method: "POST",
+			body: JSON.stringify(authData),
+		});
+		let data = (await resp.json()) as AuthResponseData;
+		this.token = data.AccessToken;
+		this.student = data.Students[0];
 	}
 
 	genRequest(url: URL | string, body?: BodyInit): Request {
