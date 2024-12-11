@@ -39,14 +39,10 @@ export class AeriesApi {
 			secretKey,
 			timestamp,
 			password,
-			username,
-			new URL(`${this.apiUrl}/authentication`)
+			username
 		);
 
-		let resp = await fetch(`/proxy`, {
-			method: "POST",
-			body: JSON.stringify(authData),
-		});
+		let resp = await fetch(this.genRequest("POST", "/authentication", authData));
 
 		if (!resp.ok) {
 			return false;
@@ -66,14 +62,22 @@ export class AeriesApi {
 		}
 	}
 
-	genRequest(url: URL | string, body?: BodyInit): Request {
+	genRequest(method: string, url: URL | string, body?: object): Request {
 		let headers = new Headers();
-		if (this.token === null) throw new UninitializedApiError();
-		headers.append("Authorization", this.token);
-		return new Request(url, {
+		if (url !== "/authentication") {
+			if (this.token === null) throw new UninitializedApiError();
+			headers.append("Authorization", this.token);
+		}
+		if (body) {
+			body.url = this.apiUrl + url.toString();
+			body.method = method;
+		} else {
+			body = { url: this.apiUrl + url.toString(), method };
+		}
+		return new Request("/proxy", {
 			headers,
-			body,
-			method: "GET",
+			body: JSON.stringify(body),
+			method: "POST",
 		});
 	}
 
@@ -81,7 +85,7 @@ export class AeriesApi {
 		if (this.student === null) throw new UninitializedApiError();
 		let resp = await fetch(
 			this.genRequest(
-				`${this.apiUrl}/student/${this.student.Demographics.StudentID}`
+				"GET", `/student/${this.student.Demographics.StudentID}/homescreendata`
 			)
 		);
 		let data = await resp.json();

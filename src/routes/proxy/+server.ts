@@ -1,10 +1,10 @@
 import type { RequestHandler } from "./$types";
 
 export const POST: RequestHandler = async ({ request }) => {
-	let { url, ...body } = await request.json();
+	let { url, method, ...body } = await request.json();
 	return await fetch(url, {
-		method: "POST",
+		method: method,
 		headers: [["Content-Type", "application/json"]],
-		body: JSON.stringify(body),
+		body: ["GET", "HEAD"].includes(method) ? undefined : JSON.stringify(body),
 	});
 };

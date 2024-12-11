@@ -125,19 +125,16 @@ export class AuthRequestData {
 	public Platform: string = "android";
 	public UserName: string;
 	public UserType: string = "Student";
-	public url: URL;
 
 	constructor(
 		SecretKey: string,
 		DateTimeStamp: string,
 		Password: string,
 		UserName: string,
-		url: URL
 	) {
 		this.SecretKey = SecretKey;
 		this.DateTimeStamp = DateTimeStamp;
 		this.Password = Password;
 		this.UserName = UserName;
-		this.url = url;
 	}
 }
