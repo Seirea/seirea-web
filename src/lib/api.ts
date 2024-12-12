@@ -1,15 +1,4 @@
-import {
-	type Address,
-	type Assignment,
-	type AuthResponseData,
-	type Demographics,
-	type PasswordRequirement,
-	type PasswordRule,
-	type Student,
-	type View,
-	AuthRequestData,
-	isFail,
-} from "./api-types";
+import { AuthRequestData, type AuthResponseData, type HomeScreenData, isFail, type Student } from "./api-types";
 
 import { generateKeyFromTimestamp, getTimeFormatted } from "./auth/keygen";
 
@@ -24,10 +13,11 @@ export class AeriesApi {
 	public apiUrl: URL;
 	private token: string | null;
 	private student: Student | null;
-	constructor(apiUrl: URL) {
+
+	constructor(apiUrl: URL, token: string | null, student: Student | null) {
 		this.apiUrl = apiUrl;
-		this.token = null;
-		this.student = null;
+		this.token = token;
+		this.student = student;
 	}
 
 	// return true if able to authenticate
@@ -63,33 +53,25 @@ export class AeriesApi {
 	}
 
 	genRequest(method: string, url: URL | string, body?: object): Request {
-		let headers = new Headers();
+		let headers: { [id: string] : string} = {};
 		if (url !== "/authentication") {
 			if (this.token === null) throw new UninitializedApiError();
-			headers.append("Authorization", this.token);
+			headers["Authorization"] = `Bearer ${this.token}`;
 		}
-		if (body) {
-			body.url = this.apiUrl + url.toString();
-			body.method = method;
-		} else {
-			body = { url: this.apiUrl + url.toString(), method };
-		}
+		body = {url: this.apiUrl + url.toString(), method, headers, ...body};
 		return new Request("/proxy", {
-			headers,
 			body: JSON.stringify(body),
 			method: "POST",
 		});
 	}
 
-	async getHomePage(): Promise<unknown> {
+	async getHomePage(): Promise<HomeScreenData> {
 		if (this.student === null) throw new UninitializedApiError();
 		let resp = await fetch(
 			this.genRequest(
 				"GET", `/student/${this.student.Demographics.StudentID}/homescreendata`
 			)
 		);
-		let data = await resp.json();
-
-		return data;
+		return await resp.json();
 	}
 }
