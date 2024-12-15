@@ -7,7 +7,7 @@ import {
 	type HomeScreenData,
 	isFail,
 	type Student,
-	type AuthedStudent,
+	type AuthenticatedStudent,
 	type Gradebook,
 } from "./api-types";
 
@@ -24,9 +24,9 @@ export class UninitializedApiError extends Error {
 
 export class AeriesApi {
 	public apiUrl: URL;
-	public authedStudent: Writable<AuthedStudent | null>;
+	public authedStudent: Writable<AuthenticatedStudent | null>;
 
-	public constructor(apiUrl: URL, authedStudent: AuthedStudent | null) {
+	public constructor(apiUrl: URL, authedStudent: AuthenticatedStudent | null) {
 		this.apiUrl = apiUrl;
 		this.authedStudent = writable(authedStudent);
 	}
@@ -40,8 +40,10 @@ export class AeriesApi {
 		username: string,
 		password: string
 	): Promise<Boolean> {
-		if (get(this.authedStudent) != null) {
-			console.log("not sending auth request because already have auth token!");
+		if (this.isInitialized()) {
+			console.log(
+				"Not sending authentication request because we are already authenticated!"
+			);
 			return true;
 		}
 		/* assume it sets `student` & `token` */
@@ -66,10 +68,10 @@ export class AeriesApi {
 		console.log(data);
 
 		if (isFail(data)) {
-			console.log("auth fail!");
+			console.log(`Authentication fail: ${data}`);
 			return false;
 		} else {
-			console.log("auth success");
+			console.log("Authentication success!");
 			this.authedStudent.set({
 				Token: data.AccessToken,
 				Student: data.Students[0],
@@ -108,7 +110,9 @@ export class AeriesApi {
 		return await resp.json();
 	}
 
-	public async getClassSummaries(): Promise<ClassSummary[]> {
+	public async getClassSummaries(
+		term: string = "Current Terms"
+	): Promise<ClassSummary[]> {
 		if (!this.isInitialized()) throw new UninitializedApiError();
 		let resp = await fetch(
 			this.genRequest(
@@ -121,9 +125,7 @@ export class AeriesApi {
 		let datum = (await resp.json()) as ClassSummaryDatum[];
 
 		return datum
-			.map((datum) =>
-				datum.ClassSummary.filter((x) => x.Term == "Current Terms")
-			)
+			.map((datum) => datum.ClassSummary.filter((x) => x.Term == term))
 			.flat();
 	}
 	public async getGradebook(

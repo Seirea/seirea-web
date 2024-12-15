@@ -3,12 +3,12 @@
 	import { goto } from "$app/navigation";
 	import { AeriesApi } from "$lib/api";
 	import { getContext, onMount, setContext } from "svelte";
-	import type { AuthedStudent } from "$lib/api-types";
+	import type { AuthenticatedStudent } from "$lib/api-types";
 
 	let { children } = $props();
 
 	function failedLogin(msg: string) {
-		alert(`${msg}, returning to login page`);
+		alert(`${msg}\nReturning to login page...`);
 		goto("/");
 	}
 
@@ -20,7 +20,9 @@
 
 	let apiState = new AeriesApi(
 		new URL(apiUrl),
-		authStudent != null ? (JSON.parse(authStudent) as AuthedStudent) : null,
+		authStudent != null
+			? (JSON.parse(authStudent) as AuthenticatedStudent)
+			: null,
 	);
 	setContext("api", apiState);
 	let as = apiState.authedStudent;
@@ -31,7 +33,7 @@
 		const password = localStorage.getItem("password");
 
 		if (username == null || password == null) {
-			failedLogin("username or password not set");
+			failedLogin("Username or password not set!");
 			return;
 		}
 
@@ -40,8 +42,8 @@
 			localStorage.removeItem("username");
 			localStorage.removeItem("password");
 			localStorage.removeItem("api-authedStudent");
-			alert("Unable to authenticate! Check your Email and Password.");
-			goto("/");
+			failedLogin("Unable to authenticate! Check your Email and Password.");
+			return;
 		}
 
 		localStorage.setItem("api-authedStudent", JSON.stringify($as));
