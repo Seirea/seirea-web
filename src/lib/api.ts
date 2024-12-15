@@ -15,9 +15,17 @@ export class UninitializedApiError extends Error {
 	}
 }
 
+function resolveAfter2Seconds() {
+	return new Promise((resolve) => {
+		setTimeout(() => {
+			resolve("resolved");
+		}, 2000);
+	});
+}
+
 export class AeriesApi {
 	public apiUrl: URL;
-	private authedStudent: AuthedStudent | null;
+	public authedStudent: AuthedStudent | null;
 
 	constructor(apiUrl: URL, authedStudent: AuthedStudent | null) {
 		this.apiUrl = apiUrl;
@@ -27,7 +35,11 @@ export class AeriesApi {
 	// return true if able to authenticate
 	async authenticate(username: string, password: string): Promise<Boolean> {
 		if (this.authedStudent != null) {
+			const backup = this.authedStudent;
+			this.authedStudent = null;
+			console.log(await resolveAfter2Seconds());
 			console.log("Skipping authentication because already authenticated!");
+			this.authedStudent = backup;
 			return true;
 		}
 		/* assume it sets `student` & `token` */
