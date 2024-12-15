@@ -1,17 +1,29 @@
 <script lang="ts">
 	import type { AeriesApi } from "$lib/api";
-	import { getContext } from "svelte";
+	import type { Assignment } from "$lib/api-types";
+	import { getContext, onMount } from "svelte";
 	import { type Writable } from "svelte/store";
 
-	const api: Writable<AeriesApi> = getContext("api");
-	api.subscribe((val) => {
-		console.log("UPDATED!", val);
+	const api: AeriesApi = getContext("api");
+	let assignments: Assignment[] = $state([]);
+	let as = api.authedStudent;
+
+	as.subscribe(async (val) => {
+		console.log("update!", val);
+		if (val != null) {
+			console.log("calling home page update!");
+			assignments = (await api.getHomePage()).RecentChanges;
+			console.log(assignments);
+		}
 	});
 </script>
 
 <div class="flex flex-col gap-4 p-4">
 	<h1 class="text-4xl">Home</h1>
 	<div class="flex flex-col">
-		<p1>{$api.authedStudent}</p1>
+		{#each assignments as assignment}
+			<p1>{assignment.AssignmentName}</p1>
+		{/each}
+		<p1>{$as != null ? "initialized" : "uninitialized"}</p1>
 	</div>
 </div>

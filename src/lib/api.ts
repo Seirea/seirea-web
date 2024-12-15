@@ -8,6 +8,8 @@ import {
 
 import { generateKeyFromTimestamp, getTimeFormatted } from "./auth/keygen";
 
+import { writable, type Writable, get } from "svelte/store";
+
 export class UninitializedApiError extends Error {
 	constructor() {
 		super("AeriesApi was not initialized");
@@ -25,21 +27,21 @@ function resolveAfter2Seconds() {
 
 export class AeriesApi {
 	public apiUrl: URL;
-	public authedStudent: AuthedStudent | null;
+	public authedStudent: Writable<AuthedStudent | null>;
 
 	constructor(apiUrl: URL, authedStudent: AuthedStudent | null) {
 		this.apiUrl = apiUrl;
-		this.authedStudent = authedStudent;
+		this.authedStudent = writable(authedStudent);
 	}
 
 	// return true if able to authenticate
 	async authenticate(username: string, password: string): Promise<Boolean> {
-		if (this.authedStudent != null) {
-			const backup = this.authedStudent;
-			this.authedStudent = null;
+		if (get(this.authedStudent) != null) {
+			const backup = get(this.authedStudent);
+			this.authedStudent.set(null);
 			console.log(await resolveAfter2Seconds());
 			console.log("Skipping authentication because already authenticated!");
-			this.authedStudent = backup;
+			this.authedStudent.set(backup);
 			return true;
 		}
 		/* assume it sets `student` & `token` */
@@ -68,10 +70,10 @@ export class AeriesApi {
 			return false;
 		} else {
 			console.log("auth success");
-			this.authedStudent = {
+			this.authedStudent.set({
 				Token: data.AccessToken,
 				Student: data.Students[0],
-			};
+			});
 			return true;
 		}
 	}
@@ -80,7 +82,7 @@ export class AeriesApi {
 		let headers: { [id: string]: string } = {};
 		if (url !== "/authentication") {
 			if (this.authedStudent === null) throw new UninitializedApiError();
-			headers["Authorization"] = `Bearer ${this.authedStudent.Token}`;
+			headers["Authorization"] = `Bearer ${get(this.authedStudent)!.Token}`;
 		}
 		body = { url: this.apiUrl + url.toString(), method, headers, ...body };
 		return new Request("/proxy", {
@@ -89,16 +91,14 @@ export class AeriesApi {
 		});
 	}
 
-	getAuthedStudent(): AuthedStudent | null {
-		return this.authedStudent;
-	}
-
 	async getHomePage(): Promise<HomeScreenData> {
 		if (this.authedStudent === null) throw new UninitializedApiError();
 		let resp = await fetch(
 			this.genRequest(
 				"GET",
-				`/student/${this.authedStudent.Student.Demographics.StudentID}/homescreendata`
+				`/student/${
+					get(this.authedStudent)!.Student.Demographics.StudentID
+				}/homescreendata`
 			)
 		);
 		return await resp.json();
