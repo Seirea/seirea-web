@@ -3,6 +3,7 @@
 	import type { Assignment } from "$lib/api-types";
 	import { getContext, onMount } from "svelte";
 	import { type Writable } from "svelte/store";
+	import AssignmentComponent from "$lib/components/AssignmentComponent.svelte";
 
 	const api: AeriesApi = getContext("api");
 	let assignments: Assignment[] = $state([]);
@@ -22,7 +23,7 @@
 	<h1 class="text-4xl">Home</h1>
 	<div class="flex flex-col">
 		{#each assignments as assignment}
-			<p1>{assignment.AssignmentName}</p1>
+			<AssignmentComponent {assignment}></AssignmentComponent>
 		{/each}
 		<p1>{$as != null ? "initialized" : "uninitialized"}</p1>
 	</div>

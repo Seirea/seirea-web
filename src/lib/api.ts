@@ -17,14 +17,6 @@ export class UninitializedApiError extends Error {
 	}
 }
 
-function resolveAfter2Seconds() {
-	return new Promise((resolve) => {
-		setTimeout(() => {
-			resolve("resolved");
-		}, 2000);
-	});
-}
-
 export class AeriesApi {
 	public apiUrl: URL;
 	public authedStudent: Writable<AuthedStudent | null>;
@@ -37,11 +29,7 @@ export class AeriesApi {
 	// return true if able to authenticate
 	async authenticate(username: string, password: string): Promise<Boolean> {
 		if (get(this.authedStudent) != null) {
-			const backup = get(this.authedStudent);
-			this.authedStudent.set(null);
-			console.log(await resolveAfter2Seconds());
-			console.log("Skipping authentication because already authenticated!");
-			this.authedStudent.set(backup);
+			console.log("not sending auth request because already have auth token!");
 			return true;
 		}
 		/* assume it sets `student` & `token` */
