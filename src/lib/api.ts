@@ -1,9 +1,9 @@
 import {
+	type AuthedStudent,
 	AuthRequestData,
 	type AuthResponseData,
 	type HomeScreenData,
 	isFail,
-	type Student,
 } from "./api-types";
 
 import { generateKeyFromTimestamp, getTimeFormatted } from "./auth/keygen";
@@ -17,17 +17,19 @@ export class UninitializedApiError extends Error {
 
 export class AeriesApi {
 	public apiUrl: URL;
-	private token: string | null;
-	private student: Student | null;
+	private authedStudent: AuthedStudent | null;
 
-	constructor(apiUrl: URL, token: string | null, student: Student | null) {
+	constructor(apiUrl: URL, authedStudent: AuthedStudent | null) {
 		this.apiUrl = apiUrl;
-		this.token = token;
-		this.student = student;
+		this.authedStudent = authedStudent;
 	}
 
 	// return true if able to authenticate
 	async authenticate(username: string, password: string): Promise<Boolean> {
+		if (this.authedStudent != null) {
+			console.log("Skipping authentication because already authenticated!");
+			return true;
+		}
 		/* assume it sets `student` & `token` */
 		const timestamp = getTimeFormatted();
 		const secretKey = await generateKeyFromTimestamp(getTimeFormatted());
@@ -50,12 +52,14 @@ export class AeriesApi {
 		console.log(data);
 
 		if (isFail(data)) {
-			console.log("fail!");
+			console.log("auth fail!");
 			return false;
 		} else {
-			console.log("success");
-			this.token = data.AccessToken;
-			this.student = data.Students[0];
+			console.log("auth success");
+			this.authedStudent = {
+				Token: data.AccessToken,
+				Student: data.Students[0],
+			};
 			return true;
 		}
 	}
@@ -63,8 +67,8 @@ export class AeriesApi {
 	genRequest(method: string, url: URL | string, body?: object): Request {
 		let headers: { [id: string]: string } = {};
 		if (url !== "/authentication") {
-			if (this.token === null) throw new UninitializedApiError();
-			headers["Authorization"] = `Bearer ${this.token}`;
+			if (this.authedStudent === null) throw new UninitializedApiError();
+			headers["Authorization"] = `Bearer ${this.authedStudent.Token}`;
 		}
 		body = { url: this.apiUrl + url.toString(), method, headers, ...body };
 		return new Request("/proxy", {
@@ -73,12 +77,16 @@ export class AeriesApi {
 		});
 	}
 
+	getAuthedStudent(): AuthedStudent | null {
+		return this.authedStudent;
+	}
+
 	async getHomePage(): Promise<HomeScreenData> {
-		if (this.student === null) throw new UninitializedApiError();
+		if (this.authedStudent === null) throw new UninitializedApiError();
 		let resp = await fetch(
 			this.genRequest(
 				"GET",
-				`/student/${this.student.Demographics.StudentID}/homescreendata`
+				`/student/${this.authedStudent.Student.Demographics.StudentID}/homescreendata`
 			)
 		);
 		return await resp.json();
