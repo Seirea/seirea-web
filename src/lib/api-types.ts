@@ -63,7 +63,7 @@ export interface Student {
 	Views: View[];
 }
 
-export interface AuthedStudent {
+export interface AuthenticatedStudent {
 	Token: string;
 	Student: Student;
 }
