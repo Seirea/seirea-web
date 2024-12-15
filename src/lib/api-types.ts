@@ -108,18 +108,6 @@ export function isFail(object: any): object is AuthResponseFail {
 	return "success" in object && !object["success"];
 }
 
-export interface Assignment {
-	name: string;
-	percent: number;
-	duedate: number;
-	score: number;
-	total: number;
-	graded: boolean;
-	category: string;
-	description: string;
-	classname?: string;
-}
-
 export class AuthRequestData {
 	public AppType: string = "PSP";
 	public ClientId: string =
@@ -181,6 +169,29 @@ export interface Assignment {
 	PeriodTitle: string;
 }
 
+export interface GradebookAssignment {
+	AssignmentDescription: string;
+	AssignmentNumber: number;
+	Category: string;
+	Comment: string;
+	DateAssigned: string;
+	DateCompleted: string;
+	DateDue: string;
+	Description: string;
+	IsExtraCredit: boolean;
+	IsGraded: boolean;
+	IsScoreValueACheckMark: boolean;
+	IsScoreVisibleToParents: boolean;
+	Mark: string;
+	MaxScore: number;
+	NumberCorrect: number;
+	NumberPossible: number;
+	Percent: number;
+	RubricAssignment: boolean;
+	Score: number;
+	Type: string;
+}
+
 export interface ClassSummaryDatum {
 	SchoolCode: number;
 	SchoolName: string;
@@ -220,4 +231,16 @@ export interface Message {
 	Description: string;
 	CreateDate: string;
 	Priority: number;
+}
+
+export interface Gradebook {
+	GradebookName: string;
+	GradebookNumber: number;
+	Assignments: GradebookAssignment[];
+	Period: number;
+	Status: string;
+	TermCode: string;
+	TermDescription: string;
+	StartDate: string;
+	EndDate: string;
 }

@@ -1,9 +1,14 @@
 import {
-	type AuthedStudent,
 	AuthRequestData,
+	type Assignment,
 	type AuthResponseData,
+	type ClassSummary,
+	type ClassSummaryDatum,
 	type HomeScreenData,
 	isFail,
+	type Student,
+	type AuthedStudent,
+	type Gradebook,
 } from "./api-types";
 
 import { generateKeyFromTimestamp, getTimeFormatted } from "./auth/keygen";
@@ -21,13 +26,20 @@ export class AeriesApi {
 	public apiUrl: URL;
 	public authedStudent: Writable<AuthedStudent | null>;
 
-	constructor(apiUrl: URL, authedStudent: AuthedStudent | null) {
+	public constructor(apiUrl: URL, authedStudent: AuthedStudent | null) {
 		this.apiUrl = apiUrl;
 		this.authedStudent = writable(authedStudent);
 	}
 
+	public isInitialized(): boolean {
+		return get(this.authedStudent) != null;
+	}
+
 	// return true if able to authenticate
-	async authenticate(username: string, password: string): Promise<Boolean> {
+	public async authenticate(
+		username: string,
+		password: string
+	): Promise<Boolean> {
 		if (get(this.authedStudent) != null) {
 			console.log("not sending auth request because already have auth token!");
 			return true;
@@ -66,7 +78,11 @@ export class AeriesApi {
 		}
 	}
 
-	genRequest(method: string, url: URL | string, body?: object): Request {
+	private genRequest(
+		method: string,
+		url: URL | string,
+		body?: object
+	): Request {
 		let headers: { [id: string]: string } = {};
 		if (url !== "/authentication") {
 			if (this.authedStudent === null) throw new UninitializedApiError();
@@ -79,7 +95,7 @@ export class AeriesApi {
 		});
 	}
 
-	async getHomePage(): Promise<HomeScreenData> {
+	public async getHomePage(): Promise<HomeScreenData> {
 		if (this.authedStudent === null) throw new UninitializedApiError();
 		let resp = await fetch(
 			this.genRequest(
@@ -87,6 +103,40 @@ export class AeriesApi {
 				`/student/${
 					get(this.authedStudent)!.Student.Demographics.StudentID
 				}/homescreendata`
+			)
+		);
+		return await resp.json();
+	}
+
+	public async getClassSummaries(): Promise<ClassSummary[]> {
+		if (!this.isInitialized()) throw new UninitializedApiError();
+		let resp = await fetch(
+			this.genRequest(
+				"GET",
+				`/student/${
+					get(this.authedStudent)!.Student.Demographics.StudentID
+				}/classsummary`
+			)
+		);
+		let datum = (await resp.json()) as ClassSummaryDatum[];
+
+		return datum
+			.map((datum) =>
+				datum.ClassSummary.filter((x) => x.Term == "Current Terms")
+			)
+			.flat();
+	}
+	public async getGradebook(
+		gradebookNumber: number,
+		term: string
+	): Promise<Gradebook> {
+		if (!this.isInitialized()) throw new UninitializedApiError();
+		let resp = await fetch(
+			this.genRequest(
+				"GET",
+				`/${get(this.authedStudent)!.Student.Demographics.SchoolCode}/student/${
+					get(this.authedStudent)!.Student.Demographics.StudentID
+				}/gradebooks/${gradebookNumber}/${term}`
 			)
 		);
 		return await resp.json();
