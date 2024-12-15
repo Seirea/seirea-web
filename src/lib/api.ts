@@ -87,7 +87,7 @@ export class AeriesApi {
 	): Request {
 		let headers: { [id: string]: string } = {};
 		if (url !== "/authentication") {
-			if (this.authedStudent === null) throw new UninitializedApiError();
+			if (!this.isInitialized()) throw new UninitializedApiError();
 			headers["Authorization"] = `Bearer ${get(this.authedStudent)!.Token}`;
 		}
 		body = { url: this.apiUrl + url.toString(), method, headers, ...body };
@@ -98,7 +98,7 @@ export class AeriesApi {
 	}
 
 	public async getHomePage(): Promise<HomeScreenData> {
-		if (this.authedStudent === null) throw new UninitializedApiError();
+		if (!this.isInitialized()) throw new UninitializedApiError();
 		let resp = await fetch(
 			this.genRequest(
 				"GET",
