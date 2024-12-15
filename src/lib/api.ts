@@ -74,12 +74,4 @@ export class AeriesApi {
 		);
 		return await resp.json();
 	}
-
-	dumpAuthData(): object {
-		if (this.student === null) throw new UninitializedApiError();
-		return {
-			student: this.student,
-			token: this.token,
-		};
-	}
 }
