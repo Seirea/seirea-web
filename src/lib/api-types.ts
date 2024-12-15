@@ -103,17 +103,6 @@ export function isFail(object: any): object is AuthResponseFail {
 	return "success" in object && !object["success"];
 }
 
-export interface Assignment {
-	name: string;
-	percent: number;
-	duedate: number;
-	score: number;
-	total: number;
-	graded: boolean;
-	category: string;
-	description: string;
-	classname?: string;
-}
 
 export class AuthRequestData {
 	public AppType: string = "PSP";
@@ -149,32 +138,28 @@ export interface HomeScreenData {
 }
 
 export interface Assignment {
-	AssignedDate:            string;
-	DueDate:                 string;
-	LastUpdated:             string;
-	GradingCompleted:        boolean;
-	GradingCompletedDate:    string;
-	SchoolCode:              number;
-	GradebookNumber:         number;
-	GradebookName:           string;
-	Period:                  string;
-	AssignmentNumber:        number;
-	CategoryDescription:     string;
-	AssignmentName:          string;
-	Comment:                 string;
-	Status:                  string;
-	Mark:                    string;
-	NumberCorrect:           number;
-	MaxNumberCorrect:        number;
-	Score:                   number;
-	MaxScore:                number;
-	Percentage:              number;
-	IsExtraCredit:           boolean;
-	RubricAssignment:        boolean;
-	IsScoreVisibleToParents: boolean;
-	IsMissing:               boolean;
-	PeriodTitle:             string;
+    AssignmentDescription: string;
+    AssignmentNumber: number;
+    Category: string;
+    Comment: string;
+    DateAssigned: string;
+    DateCompleted: string;
+    DateDue: string;
+    Description: string;
+    IsExtraCredit: boolean;
+    IsGraded: boolean;
+    IsScoreValueACheckMark: boolean;
+    IsScoreVisibleToParents: boolean;
+    Mark: string;
+    MaxScore: number;
+    NumberCorrect: number;
+    NumberPossible: number;
+    Percent: number;
+    RubricAssignment: boolean;
+    Score: number;
+    Type: string;
 }
+
 
 export interface ClassSummaryDatum {
 	SchoolCode:   number;

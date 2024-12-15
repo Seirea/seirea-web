@@ -1,25 +1,13 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { goto } from "$app/navigation";
-	import { AeriesApi } from "$lib/api";
+	import { AeriesApi, authAndInitialize } from "$lib/api";
 	import type { Assignment } from "$lib/api-types";
 
 	let assignments: Assignment[] = [];
 
 	onMount(async () => {
-		const apiUrl = localStorage.getItem("api-url");
-		const authData = JSON.parse(localStorage.getItem("authData") ?? "{}");
-		if (apiUrl == null || authData == null) {
-			alert("You are not logged in! Redirecting to login page...");
-			await goto("/");
-		} else {
-			console.log(authData);
-			const api = new AeriesApi(new URL(apiUrl), authData.token, authData.student);
-			const homedata = await api.getHomePage();
-			assignments = homedata.RecentChanges;
-			console.warn(homedata);
-
-		}
+		assignments = (await (await authAndInitialize()).getHomePage()).RecentChanges;
 	});
 
 </script>
