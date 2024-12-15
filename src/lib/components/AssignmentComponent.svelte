@@ -16,7 +16,9 @@
 >
 	<div class="flex flex-row justify-between text-xl">
 		<p>{p.assignment.AssignmentName}</p>
-		<p>{p.assignment.Score}</p>
+		<p>
+			{`${p.assignment.Score}/${p.assignment.MaxScore} (${p.assignment.Percentage}%)`}
+		</p>
 	</div>
 	<div class="flex flex-row justify-between">
 		<p>{p.assignment.GradebookName}</p>
