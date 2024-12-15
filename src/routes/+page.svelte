@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
 	import { onMount } from "svelte";
-	import { AeriesApi } from "$lib/api";
 
 	onMount(() => {
 		if (
@@ -12,26 +11,13 @@
 		}
 	});
 
-	async function handleLoginSubmit(e: SubmitEvent) {
+	function handleLoginSubmit(e: SubmitEvent) {
 		const formData = new FormData(e.target as HTMLFormElement);
-		const username = formData.get("email") as string;
-		const password = formData.get("password") as string;
-		localStorage.setItem("username", username);
-		localStorage.setItem("password", password);
-		const apiUrl =
-			localStorage.getItem("api-url") ??
-			"https://aeries16.fjuhsd.org/parent/mobileapi/v1";
-		localStorage.setItem("api-url", apiUrl);
-		const api = new AeriesApi(new URL(apiUrl), null, null);
-		const authed = await api.authenticate(username, password);
-		if (!authed) {
-			localStorage.clear();
-			alert("Unable to authenticate! Check your Email and Password.");
-			await goto("/");
-		}
-		const authData = api.dumpAuthData();
-		localStorage.setItem("authData", JSON.stringify(authData));
-		await goto("/home");
+
+		localStorage.setItem("username", formData.get("email") as string);
+		localStorage.setItem("password", formData.get("password") as string);
+
+		goto("/home");
 	}
 </script>
 

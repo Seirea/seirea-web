@@ -1,39 +1,30 @@
 <script lang="ts">
-	import { onMount } from "svelte";
-	import { goto } from "$app/navigation";
-	import { AeriesApi, authAndInitialize } from "$lib/api";
+	import type { AeriesApi } from "$lib/api";
 	import type { Assignment } from "$lib/api-types";
+	import { getContext, onMount } from "svelte";
+	import { type Writable } from "svelte/store";
+	import AssignmentComponent from "$lib/components/AssignmentComponent.svelte";
 
-	let assignments: Assignment[] = [];
+	const api: AeriesApi = getContext("api");
+	let assignments: Assignment[] = $state([]);
+	let as = api.authedStudent;
 
-	onMount(async () => {
-		assignments = (await (await authAndInitialize()).getHomePage()).RecentChanges;
+	as.subscribe(async (val) => {
+		console.log("update!", val);
+		if (val != null) {
+			console.log("calling home page update!");
+			assignments = (await api.getHomePage()).RecentChanges;
+			console.log(assignments);
+		}
 	});
-
 </script>
 
 <div class="flex flex-col gap-4 p-4">
 	<h1 class="text-4xl">Home</h1>
 	<div class="flex flex-col">
-		<table>
-			<thead>
-			<tr>
-				<th>Assignment Name</th>
-				<th>Category</th>
-				<th>Score</th>
-				<th>Max Score</th>
-			</tr>
-			</thead>
-			<tbody>
-			{#each assignments as assignment}
-				<tr style:background-color={assignment.GradingCompleted ? "inherit" : "gray"}>
-					<td>{assignment.AssignmentName}</td>
-					<td>{assignment.CategoryDescription}</td>
-					<td>{assignment.Score}</td>
-					<td>{assignment.MaxScore}</td>
-				</tr>
-			{/each}
-			</tbody>
-		</table>
+		{#each assignments as assignment}
+			<AssignmentComponent {assignment}></AssignmentComponent>
+		{/each}
+		<p1>{$as != null ? "initialized" : "uninitialized"}</p1>
 	</div>
 </div>
