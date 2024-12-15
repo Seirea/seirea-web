@@ -4,7 +4,6 @@
 	import { AeriesApi } from "$lib/api";
 	import { getContext, onMount, setContext } from "svelte";
 	import type { AuthedStudent } from "$lib/api-types";
-	import { writable, type Writable } from "svelte/store";
 
 	let { children } = $props();
 
@@ -19,13 +18,12 @@
 	const authStudent = localStorage.getItem("api-authedStudent");
 	console.log("in localstorage:", authStudent);
 
-	let apiState = writable(
-		new AeriesApi(
-			new URL(apiUrl),
-			authStudent != null ? (JSON.parse(authStudent) as AuthedStudent) : null,
-		),
+	let apiState = new AeriesApi(
+		new URL(apiUrl),
+		authStudent != null ? (JSON.parse(authStudent) as AuthedStudent) : null,
 	);
 	setContext("api", apiState);
+	let as = apiState.authedStudent;
 
 	onMount(async () => {
 		console.log("Authenticating...");
@@ -37,7 +35,7 @@
 			return;
 		}
 
-		const authed = await $apiState.authenticate(username, password);
+		const authed = await apiState.authenticate(username, password);
 		if (!authed) {
 			localStorage.removeItem("username");
 			localStorage.removeItem("password");
@@ -46,10 +44,7 @@
 			goto("/");
 		}
 
-		localStorage.setItem(
-			"api-authedStudent",
-			JSON.stringify($apiState.getAuthedStudent()),
-		);
+		localStorage.setItem("api-authedStudent", JSON.stringify($as));
 	});
 </script>
 
