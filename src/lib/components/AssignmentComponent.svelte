@@ -7,17 +7,19 @@
 
 	let p: Props = $props();
 
-	let dd = p.assignment.GradingCompletedDate;
+	let dd = p.assignment.LastUpdated;
 	dd = dd.substring(6, dd.length - 2);
 </script>
 
-<li class="flex flex-col border-2 rounded-md my-2 p-2">
-	<div class="flex flex-row justify-between">
+<li
+	class="flex flex-col border-2 rounded-md my-1 p-2 bg-gradient-to-tr from-indigo-100 to-blue-100 border-slate-200"
+>
+	<div class="flex flex-row justify-between text-xl">
 		<p>{p.assignment.AssignmentName}</p>
 		<p>{p.assignment.Score}</p>
 	</div>
 	<div class="flex flex-row justify-between">
 		<p>{p.assignment.GradebookName}</p>
-		<p>{new Date(parseInt(dd, 10)).toLocaleDateString()}</p>
+		<p>{new Date(parseInt(dd, 10)).toLocaleString()}</p>
 	</div>
 </li>
