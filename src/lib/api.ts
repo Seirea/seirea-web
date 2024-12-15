@@ -1,4 +1,10 @@
-import { AuthRequestData, type AuthResponseData, type HomeScreenData, isFail, type Student } from "./api-types";
+import {
+	AuthRequestData,
+	type AuthResponseData,
+	type HomeScreenData,
+	isFail,
+	type Student,
+} from "./api-types";
 
 import { generateKeyFromTimestamp, getTimeFormatted } from "./auth/keygen";
 
@@ -32,7 +38,9 @@ export class AeriesApi {
 			username
 		);
 
-		let resp = await fetch(this.genRequest("POST", "/authentication", authData));
+		let resp = await fetch(
+			this.genRequest("POST", "/authentication", authData)
+		);
 
 		if (!resp.ok) {
 			return false;
@@ -53,12 +61,12 @@ export class AeriesApi {
 	}
 
 	genRequest(method: string, url: URL | string, body?: object): Request {
-		let headers: { [id: string] : string} = {};
+		let headers: { [id: string]: string } = {};
 		if (url !== "/authentication") {
 			if (this.token === null) throw new UninitializedApiError();
 			headers["Authorization"] = `Bearer ${this.token}`;
 		}
-		body = {url: this.apiUrl + url.toString(), method, headers, ...body};
+		body = { url: this.apiUrl + url.toString(), method, headers, ...body };
 		return new Request("/proxy", {
 			body: JSON.stringify(body),
 			method: "POST",
@@ -69,7 +77,8 @@ export class AeriesApi {
 		if (this.student === null) throw new UninitializedApiError();
 		let resp = await fetch(
 			this.genRequest(
-				"GET", `/student/${this.student.Demographics.StudentID}/homescreendata`
+				"GET",
+				`/student/${this.student.Demographics.StudentID}/homescreendata`
 			)
 		);
 		return await resp.json();
