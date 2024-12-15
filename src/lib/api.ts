@@ -1,19 +1,6 @@
-import {
-	AuthRequestData,
-	type Assignment,
-	type AuthResponseData,
-	type ClassSummary,
-	type ClassSummaryDatum,
-	type HomeScreenData,
-	isFail,
-	type Student,
-	type AuthenticatedStudent,
-	type Gradebook,
-} from "./api-types";
+import { AuthRequestData, type Assignment, type AuthResponseData, type ClassSummary, type ClassSummaryDatum, type HomeScreenData, isFail, type Student } from "./api-types";
 
 import { generateKeyFromTimestamp, getTimeFormatted } from "./auth/keygen";
-
-import { writable, type Writable, get } from "svelte/store";
 
 export class UninitializedApiError extends Error {
 	constructor() {
@@ -24,28 +11,17 @@ export class UninitializedApiError extends Error {
 
 export class AeriesApi {
 	public apiUrl: URL;
-	public authedStudent: Writable<AuthenticatedStudent | null>;
+	private token: string | null;
+	private student: Student | null;
 
-	public constructor(apiUrl: URL, authedStudent: AuthenticatedStudent | null) {
+	public constructor(apiUrl: URL, token: string | null, student: Student | null) {
 		this.apiUrl = apiUrl;
-		this.authedStudent = writable(authedStudent);
-	}
-
-	public isInitialized(): boolean {
-		return get(this.authedStudent) != null;
+		this.token = token;
+		this.student = student;
 	}
 
 	// return true if able to authenticate
-	public async authenticate(
-		username: string,
-		password: string
-	): Promise<Boolean> {
-		if (this.isInitialized()) {
-			console.log(
-				"Not sending authentication request because we are already authenticated!"
-			);
-			return true;
-		}
+	public async authenticate(username: string, password: string): Promise<Boolean> {
 		/* assume it sets `student` & `token` */
 		const timestamp = getTimeFormatted();
 		const secretKey = await generateKeyFromTimestamp(getTimeFormatted());
@@ -56,9 +32,7 @@ export class AeriesApi {
 			username
 		);
 
-		let resp = await fetch(
-			this.genRequest("POST", "/authentication", authData)
-		);
+		let resp = await fetch(this.genRequest("POST", "/authentication", authData));
 
 		if (!resp.ok) {
 			return false;
@@ -68,79 +42,80 @@ export class AeriesApi {
 		console.log(data);
 
 		if (isFail(data)) {
-			console.log(`Authentication fail: ${data}`);
+			console.log("fail!");
 			return false;
 		} else {
-			console.log("Authentication success!");
-			this.authedStudent.set({
-				Token: data.AccessToken,
-				Student: data.Students[0],
-			});
+			console.log("success");
+			this.token = data.AccessToken;
+			this.student = data.Students[0];
 			return true;
 		}
 	}
 
-	private genRequest(
-		method: string,
-		url: URL | string,
-		body?: object
-	): Request {
-		let headers: { [id: string]: string } = {};
+	private genRequest(method: string, url: URL | string, body?: object): Request {
+		let headers: { [id: string] : string} = {};
 		if (url !== "/authentication") {
-			if (!this.isInitialized()) throw new UninitializedApiError();
-			headers["Authorization"] = `Bearer ${get(this.authedStudent)!.Token}`;
+			if (this.token === null) throw new UninitializedApiError();
+			headers["Authorization"] = `Bearer ${this.token}`;
 		}
-		body = { url: this.apiUrl + url.toString(), method, headers, ...body };
+		body = {url: this.apiUrl + url.toString(), method, headers, ...body};
 		return new Request("/proxy", {
 			body: JSON.stringify(body),
 			method: "POST",
 		});
 	}
-
 	public async getHomePage(): Promise<HomeScreenData> {
-		if (!this.isInitialized()) throw new UninitializedApiError();
+		if (this.student === null) throw new UninitializedApiError();
 		let resp = await fetch(
 			this.genRequest(
-				"GET",
-				`/student/${
-					get(this.authedStudent)!.Student.Demographics.StudentID
-				}/homescreendata`
+				"GET", `/student/${this.student.Demographics.StudentID}/homescreendata`
 			)
 		);
 		return await resp.json();
 	}
-
-	public async getClassSummaries(
-		term: string = "Current Terms"
-	): Promise<ClassSummary[]> {
-		if (!this.isInitialized()) throw new UninitializedApiError();
+	
+	public async getClassSummaries(): Promise<ClassSummary[]> {
+		if (this.student === null) throw new UninitializedApiError();
 		let resp = await fetch(
 			this.genRequest(
-				"GET",
-				`/student/${
-					get(this.authedStudent)!.Student.Demographics.StudentID
-				}/classsummary`
+				"GET", `/student/${this.student.Demographics.StudentID}/classsummary`
 			)
 		);
-		let datum = (await resp.json()) as ClassSummaryDatum[];
+		let datum = await resp.json() as ClassSummaryDatum[];
 
-		return datum
-			.map((datum) => datum.ClassSummary.filter((x) => x.Term == term))
-			.flat();
+		return datum.map(datum => datum.ClassSummary.filter(x => x.Term == "Current Terms")).flat();
 	}
-	public async getGradebook(
-		gradebookNumber: number,
-		term: string
-	): Promise<Gradebook> {
-		if (!this.isInitialized()) throw new UninitializedApiError();
+	public async getAssignmentsForClass(classId: number, term: string): Promise<Assignment[]> {
+		if (this.student === null) throw new UninitializedApiError();
 		let resp = await fetch(
 			this.genRequest(
-				"GET",
-				`/${get(this.authedStudent)!.Student.Demographics.SchoolCode}/student/${
-					get(this.authedStudent)!.Student.Demographics.StudentID
-				}/gradebooks/${gradebookNumber}/${term}`
+				"GET", `/${this.student.Demographics.SchoolCode}/student/${this.student.Demographics.StudentID}/gradebooks/${classId}/${term}`
 			)
 		);
-		return await resp.json();
+		return (await resp.json())["Assignments"] as Assignment[] ?? [];
 	}
+
+	dumpAuthData(): object {
+		if (this.student === null) throw new UninitializedApiError();
+		return {
+			student: this.student,
+			token: this.token,
+		};
+	}
+}
+
+import { goto } from "$app/navigation";
+
+export async function authAndInitialize(): Promise<AeriesApi> {
+		const apiUrl = localStorage.getItem("api-url");
+		const authData = JSON.parse(localStorage.getItem("authData") ?? "{}");
+		if (apiUrl == null || authData == null) {
+			alert("You are not logged in! Redirecting to login page...");
+			await goto("/");
+		} else {
+			console.log(authData);
+			const api = new AeriesApi(new URL(apiUrl), authData.token, authData.student);
+			return api;
+		}
+		return new Promise((_, reject) => reject());
 }
