@@ -63,6 +63,11 @@ export interface Student {
 	Views: View[];
 }
 
+export interface AuthedStudent {
+	Token: string;
+	Student: Student;
+}
+
 export interface PasswordRequirement {
 	DifferentThanOld: boolean;
 	MinimumLength: number;
@@ -130,7 +135,7 @@ export class AuthRequestData {
 		SecretKey: string,
 		DateTimeStamp: string,
 		Password: string,
-		UserName: string,
+		UserName: string
 	) {
 		this.SecretKey = SecretKey;
 		this.DateTimeStamp = DateTimeStamp;
@@ -140,79 +145,79 @@ export class AuthRequestData {
 }
 
 export interface HomeScreenData {
-	Assignments:      Assignment[];
-	RecentChanges:    Assignment[];
-	Messages:         Message[];
+	Assignments: Assignment[];
+	RecentChanges: Assignment[];
+	Messages: Message[];
 	ClassSummaryData: ClassSummaryDatum[];
-	status:           string;
-	errors:           any[];
+	status: string;
+	errors: any[];
 }
 
 export interface Assignment {
-	AssignedDate:            string;
-	DueDate:                 string;
-	LastUpdated:             string;
-	GradingCompleted:        boolean;
-	GradingCompletedDate:    string;
-	SchoolCode:              number;
-	GradebookNumber:         number;
-	GradebookName:           string;
-	Period:                  string;
-	AssignmentNumber:        number;
-	CategoryDescription:     string;
-	AssignmentName:          string;
-	Comment:                 string;
-	Status:                  string;
-	Mark:                    string;
-	NumberCorrect:           number;
-	MaxNumberCorrect:        number;
-	Score:                   number;
-	MaxScore:                number;
-	Percentage:              number;
-	IsExtraCredit:           boolean;
-	RubricAssignment:        boolean;
+	AssignedDate: string;
+	DueDate: string;
+	LastUpdated: string;
+	GradingCompleted: boolean;
+	GradingCompletedDate: string;
+	SchoolCode: number;
+	GradebookNumber: number;
+	GradebookName: string;
+	Period: string;
+	AssignmentNumber: number;
+	CategoryDescription: string;
+	AssignmentName: string;
+	Comment: string;
+	Status: string;
+	Mark: string;
+	NumberCorrect: number;
+	MaxNumberCorrect: number;
+	Score: number;
+	MaxScore: number;
+	Percentage: number;
+	IsExtraCredit: boolean;
+	RubricAssignment: boolean;
 	IsScoreVisibleToParents: boolean;
-	IsMissing:               boolean;
-	PeriodTitle:             string;
+	IsMissing: boolean;
+	PeriodTitle: string;
 }
 
 export interface ClassSummaryDatum {
-	SchoolCode:   number;
-	SchoolName:   string;
-	StudentID:    number;
-	ShowPeriod:   boolean;
-	HideScores:   boolean;
+	SchoolCode: number;
+	SchoolName: string;
+	StudentID: number;
+	ShowPeriod: boolean;
+	HideScores: boolean;
 	ClassSummary: ClassSummary[];
 }
 
 export interface ClassSummary {
-	Period:            number;
-	StartTime:         string;
-	EndTime:           string;
-	SectionNumber:     number;
-	GradeBookNumber:   number;
-	GradeBookName:     string;
-	DoingRubric:       boolean;
-	CourseNumber:      string;
-	CourseTitle:       string;
-	TeacherNumber:     number;
-	TeacherName:       string;
-	RoomNumber:        string;
-	CurrentMark:       string;
-	Percent:           number;
-	Average:           string;
+	Period: number;
+	StartTime: string;
+	EndTime: string;
+	SectionNumber: number;
+	GradeBookNumber: number;
+	GradeBookName: string;
+	DoingRubric: boolean;
+	CourseNumber: string;
+	CourseTitle: string;
+	TeacherNumber: number;
+	TeacherName: string;
+	RoomNumber: string;
+	CurrentMark: string;
+	Percent: number;
+	Average: string;
 	MissingAssignment: number;
-	Term:              string;
-	TermCode:          string;
-	LastUpdated:       null | string;
-	PeriodTitle:       string;
+	Term: string;
+	TermCode: string;
+	LastUpdated: null | string;
+	PeriodTitle: string;
 }
 
 export interface Message {
-	ID:          string;
-	URL:         string;
-	Title:       string;
+	ID: string;
+	URL: string;
+	Title: string;
 	Description: string;
-	CreateDate:  string;
-	Priority:    number;
+	CreateDate: string;
+	Priority: number;
 }
