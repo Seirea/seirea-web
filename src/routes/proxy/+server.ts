@@ -1,4 +1,3 @@
-import { text } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 
 export const POST: RequestHandler = async ({ request }) => {
@@ -9,8 +8,4 @@ export const POST: RequestHandler = async ({ request }) => {
 		headers,
 		body: ["GET", "HEAD"].includes(method.toUpperCase()) ? undefined : JSON.stringify(body),
 	});
-};
-
-export const fallback: RequestHandler = async ({ request }) => {
-	return text(`I caught your ${request.method} request!`);
 };
