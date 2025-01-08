@@ -10,8 +10,9 @@
 
 	let lastUpdated;
 	if ((lastUpdated = p.classSummary.LastUpdated))
-		lastUpdated = lastUpdated.substring(6, lastUpdated.length - 2);
+		lastUpdated = new Date(parseInt(lastUpdated.substring(6, lastUpdated.length - 2))).toLocaleString();
 	else lastUpdated = "Not Yet Updated";
+
 </script>
 
 <a href={"./classes/class?classId=" + p.classSummary.GradeBookNumber.toString()}>
