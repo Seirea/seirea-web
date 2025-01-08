@@ -1,27 +1,22 @@
 <script lang="ts">
 	import type { Assignment } from "$lib/api-types";
+	import Box from "$lib/components/Box.svelte";
 
 	interface Props {
 		assignment: Assignment;
 	}
 
 	let p: Props = $props();
-
-	let dd = p.assignment.LastUpdated;
-	dd = dd.substring(6, dd.length - 2);
+	let lastUpdated;
+	if (lastUpdated = p.assignment.LastUpdated)
+		lastUpdated = lastUpdated.substring(6, lastUpdated.length - 2);
+	else
+		lastUpdated = "Not Yet Updated";
 </script>
 
-<li
-	class="flex flex-col border-2 rounded-md my-1 p-2 bg-gradient-to-tr from-indigo-100 to-blue-100 border-slate-200"
->
-	<div class="flex flex-row justify-between text-xl">
-		<p>{p.assignment.AssignmentName}</p>
-		<p>
-			{`${p.assignment.Score}/${p.assignment.MaxScore} (${p.assignment.Percentage}%)`}
-		</p>
-	</div>
-	<div class="flex flex-row justify-between">
-		<p>{p.assignment.GradebookName}</p>
-		<p>{new Date(parseInt(dd, 10)).toLocaleString()}</p>
-	</div>
-</li>
+<Box
+	title={p.assignment.AssignmentName}
+	right={`${p.assignment.Score}/${p.assignment.MaxScore} (${p.assignment.Percentage}%)`}
+	titlesubtext={p.assignment.GradebookName}
+	rightsubtext={new Date(parseInt(lastUpdated, 10)).toLocaleString()}
+/>
