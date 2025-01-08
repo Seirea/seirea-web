@@ -9,7 +9,7 @@
 	let p: Props = $props();
 	let lastUpdated;
 	if (lastUpdated = p.assignment.LastUpdated)
-		lastUpdated = lastUpdated.substring(6, lastUpdated.length - 2);
+		lastUpdated = new Date(parseInt(lastUpdated.substring(6, lastUpdated.length - 2), 10)).toLocaleString();
 	else
 		lastUpdated = "Not Yet Updated";
 </script>
@@ -18,5 +18,5 @@
 	title={p.assignment.AssignmentName}
 	right={`${p.assignment.Score}/${p.assignment.MaxScore} (${p.assignment.Percentage}%)`}
 	titlesubtext={p.assignment.GradebookName}
-	rightsubtext={new Date(parseInt(lastUpdated, 10)).toLocaleString()}
+	rightsubtext={lastUpdated}
 />
