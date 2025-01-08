@@ -1,0 +1,17 @@
+{
+  "lang": "en-us",
+  "name": "Seirea - Aeries Client",
+  "short_name": "Seirea",
+  "description": "your grades",
+  "start_url": "/",
+  "background_color": "#ffffff",
+  "theme_color": "#ef4444",
+  "orientation": "any",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "256x256"
+    }
+  ]
+}
