@@ -64,6 +64,9 @@ export interface Student {
 }
 
 export interface AuthenticatedStudent {
+	Username: string;
+	Password: string;
+
 	Token: string;
 	Student: Student;
 }
