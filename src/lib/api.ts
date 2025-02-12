@@ -139,7 +139,7 @@ export class AeriesApi {
 					)
 				);
 
-				console.log("Requestd homescreen again after re-authentication.");
+				console.log("Requested homescreen again after re-authentication.");
 			}
 		}
 		return await resp.json();
