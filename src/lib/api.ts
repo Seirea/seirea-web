@@ -76,9 +76,20 @@ export class AeriesApi {
 		} else {
 			console.log("Authentication success!");
 			this.authedStudent.set({
+				Username: username,
+				Password: password,
 				Token: data.AccessToken,
 				Student: data.Students[0],
 			});
+
+			console.log(
+				"localstorage set:",
+				localStorage.setItem(
+					"api-authedStudent",
+					JSON.stringify(get(this.authedStudent))
+				)
+			);
+
 			return true;
 		}
 	}
@@ -102,6 +113,7 @@ export class AeriesApi {
 
 	public async getHomePage(): Promise<HomeScreenData> {
 		if (!this.isInitialized()) throw new UninitializedApiError();
+
 		let resp = await fetch(
 			this.genRequest(
 				"GET",
@@ -110,6 +122,29 @@ export class AeriesApi {
 				}/homescreendata`
 			)
 		);
+		if (!resp.ok) {
+			let as = get(this.authedStudent)!; // should never be null since isInitialized() is true;
+			let user = as.Username;
+			let pass = as.Password;
+			this.authedStudent.set(null);
+			let authed = await this.authenticate(as.Username, as.Password);
+			console.log(
+				`Attempted re-authentication due to token expiration. Res=${authed}`
+			);
+			if (authed) {
+				// just re-try it
+				resp = await fetch(
+					this.genRequest(
+						"GET",
+						`/student/${
+							get(this.authedStudent)!.Student.Demographics.StudentID
+						}/homescreendata`
+					)
+				);
+
+				console.log("Requested homescreen again after re-authentication.");
+			}
+		}
 		return await resp.json();
 	}
 

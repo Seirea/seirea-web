@@ -2,6 +2,7 @@
 	import { getContext } from "svelte";
 	import { AeriesApi } from "$lib/api";
 	import type { Assignment, ClassSummary, TermCode } from "$lib/api-types";
+	import ClassComponent from "$lib/components/ClassComponent.svelte";
 
 	const api: AeriesApi = getContext("api");
 	let summariesPromise: Promise<ClassSummary[]> | null = $state(null);
@@ -31,6 +32,8 @@
 
 <div class="flex flex-col gap-4 p-4">
 	<h1 class="text-4xl">Classes</h1>
+
+
 	{#await currentTerm}
 		<p>Loading term ...</p>
 	{:then term}
@@ -50,7 +53,10 @@
 		{#await summariesPromise}
 			<p>Loading classes ...</p>
 		{:then summaries}
-			<table>
+			{#each summaries! as summary}
+				<ClassComponent classSummary={summary} />
+			{/each}
+			<!-- <table>
 				<thead>
 					<tr>
 						<th>Class</th>
@@ -78,12 +84,17 @@
 						{/each}
 					{/if}
 				</tbody>
-			</table>
+			</table> -->
 		{:catch err}
 			<span
 				>ERROR occured while getting classes: <code>{err.message}</code></span
 			>
 			<pre>{err.stack}</pre>
 		{/await}
+	
+	
+	
+		<!-- <div class="flex flex-col"> -->
+		
 	</div>
 </div>

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Assignment, GradebookAssignment } from "$lib/api-types";
 	import { fade } from "svelte/transition";
+	import Box from "$lib/components/Box.svelte";
 
 	interface Props {
 		assignment: Assignment | GradebookAssignment;
@@ -24,9 +25,15 @@
 	//let curScore = $state(assignment.Score);
 	const curPercent = $derived(curMaxScore == 0 ? "" : ` (${(curScore/curMaxScore * 100).toPrecision(4)}%)`)
 
+	let lastUpdated: string;
+	if (lastUpdated = dd)
+		lastUpdated = new Date(parseInt(lastUpdated.substring(6, lastUpdated.length - 2), 10)).toLocaleString();
+	else
+		lastUpdated = "Not Yet Updated";
+
 </script>
 
-<li
+<!-- <li
 	transition:fade|global={{ duration: 200 }}
 	class="flex flex-col border-2 rounded-md my-1 p-2 bg-gradient-to-tr from-indigo-100 to-blue-100 border-slate-200"
 >
@@ -50,9 +57,9 @@
 				/>{curPercent}</span
 			>
 		{/if}
-		<!-- <p>
-			{assignment.Score}/{assignment.MaxScore} ({!isGradeBook(assignment) ? assignment.Percentage : assignment.Percent}%)
-		</p> -->
+		// <p>
+		//	{assignment.Score}/{assignment.MaxScore} ({!isGradeBook(assignment) ? assignment.Percentage : assignment.Percent}%)
+		//</p>
 	</div>
 	<div class="flex flex-row justify-between">
 		{#if !isGradeBook(assignment)}
@@ -62,4 +69,51 @@
 		{/if}
 		<p>{new Date(parseInt(dd, 10)).toLocaleString()}</p>
 	</div>
-</li>
+</li> -->
+
+{#snippet title()}
+	{#if !isGradeBook(assignment)}
+		<p>{assignment.AssignmentName}</p>
+	{:else}
+		<p>{assignment.Description}</p>
+	{/if}
+{/snippet}
+
+{#snippet right()}
+	{#if !isGradeBook(assignment)}
+		<p>
+			{assignment.Score}/{assignment.MaxScore} ({assignment.Percentage}%)
+		</p>
+	{:else}
+	<span
+	><input
+		class="w-10 p-0 h-full bg-blue-50 rounded-md border-slate-100 text-center"
+		type="number"
+		bind:value={curScore}
+	/>/<input
+		class="w-10 p-0 h-full bg-blue-50 rounded-md border-slate-100 text center"
+		type="number"
+		bind:value={curMaxScore}
+	/>{curPercent}</span
+>
+	{/if}
+{/snippet}
+
+{#snippet subtitle()}
+{#if !isGradeBook(assignment)}
+<p>{assignment.GradebookName}</p>
+{:else}
+<p>{assignment.Category}</p>
+{/if}
+{/snippet}
+
+{#snippet subright()}
+	<p>{lastUpdated}</p>
+{/snippet}
+
+<Box
+	{title}
+	{right}
+	{subtitle}
+	{subright}
+/>
