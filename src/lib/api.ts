@@ -9,6 +9,9 @@ import {
 	type Student,
 	type AuthenticatedStudent,
 	type Gradebook,
+	type Attendance,
+	type GradeChange,
+	type TermCode,
 } from "./api-types";
 
 import { generateKeyFromTimestamp, getTimeFormatted } from "./auth/keygen";
@@ -176,6 +179,40 @@ export class AeriesApi {
 				}/gradebooks/${gradebookNumber}/${term}`
 			)
 		);
+		return await resp.json();
+	}
+
+	public async predictGrade(classId: number, termCode: TermCode, changes: GradeChange[]) {
+		if (!this.isInitialized()) throw new UninitializedApiError();
+
+		let resp = await fetch(
+			this.genRequest(
+				"POST",
+				'/calculategradebookscores',
+				{
+					gn: {
+						Assignments: changes,
+						GradebookNumber: classId,
+						TermCode: termCode,
+					},
+					id: get(this.authedStudent)!.Student.Demographics.StudentID,
+					sc: get(this.authedStudent)!.Student.Demographics.SchoolCode
+				}
+			)
+		);
+		return await resp.json();
+	}
+	public async getReportCards() {
+		if (!this.isInitialized()) throw new UninitializedApiError();
+		let resp = await fetch(
+			this.genRequest("GET", `/reportcardhistory/${get(this.authedStudent)!.Student.Demographics.StudentID}`)
+		);
+		return await resp.json();
+	}
+	public async getAttendance(): Promise<Attendance> {
+		if (!this.isInitialized()) throw new UninitializedApiError();
+		const st = get(this.authedStudent)!;
+		let resp = await fetch(this.genRequest("GET", `/${st.Student.Demographics.SchoolCode}/student/${st.Student.Demographics.StudentID}/schoolyearattendance`) );
 		return await resp.json();
 	}
 }

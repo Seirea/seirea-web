@@ -19,7 +19,7 @@
 	<Box
 		title={p.classSummary.CourseTitle}
 		right={`${p.classSummary.CurrentMark} (${p.classSummary.Average || p.classSummary.Percent}%)`}
-		titlesubtext={p.classSummary.GradeBookName}
-		rightsubtext={lastUpdated}
+		subtitle={p.classSummary.GradeBookName}
+		subright={lastUpdated}
 	/>
 </a>

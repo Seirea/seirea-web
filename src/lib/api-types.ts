@@ -236,6 +236,15 @@ export interface Message {
 	Priority: number;
 }
 
+export interface Category {
+	Name: string;
+	NumberOfAssignment: number;
+	Mark: string;
+	PointsEarned: number;
+	PointsPossible: number;
+	Percent: string;
+}
+
 export interface Gradebook {
 	GradebookName: string;
 	GradebookNumber: number;
@@ -246,4 +255,98 @@ export interface Gradebook {
 	TermDescription: string;
 	StartDate: string;
 	EndDate: string;
+	Categories: Category[];
 }
+
+
+
+export enum AbscenceType {
+	PRESENT = 0,
+	TARDY = 5
+}
+
+export interface AttendancePeriod {
+	Absencetype: AbscenceType | number;
+	Code: string;
+	CourseTitle: string | null;
+	Description: string;
+	Period: number;
+	PeriodTitle: string | null
+}
+
+export interface AttendanceDetail {
+	AbscenceType: AbscenceType | number;
+	AllDayCode: string;
+	AllDayDescription: string | null;
+	AttendanceDate: string;
+	AttendancePeriod: number;
+}
+
+export type Attendance = {
+	AttendanceDetails: AttendanceDetail;
+	AttendanceMessage: string | null;
+	SchoolCode: number;
+	SchoolName: string;
+	StudentAttendanceType: number; // TODO
+	StudentID: number;
+	StudentRedFlag: unknown | null;
+}[];
+
+
+// DOUBLE CHECK COULD BE FAKE
+export interface SearchedSchool {
+	CDS: string;
+	ManagedBy: string;
+	isDistrict: boolean;
+	SchoolName: string;
+	DistrictName: string;
+	Status: string;
+	County: string;
+	StreetAddress: string;
+	City: string;
+	State: string;
+	ZipCode: string;
+	MailingAddress: string;
+	MailingCity: string;
+	MailingState: string;
+	MailingZipCode: string;
+	AeriesAppParentURL: string;
+	AeriesAppStaffURL: string;
+	AeriesAppTeacherURL: string;
+	AeriesAppParent: boolean;
+	AeriesAppStaff: boolean;
+	AeriesAppTeacher: boolean;
+	RecordsTransferURL: string;
+	RecordsTransfer: boolean;
+	Fax: string | null;
+	PublicPhone: string;
+	PublicWebsite: string;
+	OpenDate: string;
+	CloseDate: string;
+	isCharter: boolean;
+	Latitude: string;
+	Longitude: string;
+	PublicAdminFirstName: string;
+	PublicAdminLastName: string;
+	PublicAdminEmail: string;
+	HighGrade: number;
+	LowGrade: number;
+	LocationType: number;
+  }
+  
+  // For an array of schools
+  type SearchResult = SearchedSchool[];
+  
+
+
+// NON AERIES TYPES
+export interface GradeChange {
+	MaxScore: number;
+	Score: number;
+	Category: string;
+	AssignmentNumber: number;
+	Mark: "";
+};
+
+
+export type TermCode = "F" | "S" | string;
