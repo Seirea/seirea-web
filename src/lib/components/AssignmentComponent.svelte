@@ -1,119 +1,72 @@
 <script lang="ts">
-	import type { Assignment, GradebookAssignment } from "$lib/api-types";
-	import { fade } from "svelte/transition";
+	import type {
+		Assignment,
+		GradebookAssignment,
+		GradeChange,
+	} from "$lib/api-types";
 	import Box from "$lib/components/Box.svelte";
+	import TextInput from "$lib/components/TextInput.svelte";
+	import { formatAeriesDate } from "$lib/utils";
+	import { untrack } from "svelte";
+	import type { SvelteMap } from "svelte/reactivity";
 
 	interface Props {
 		assignment: Assignment | GradebookAssignment;
-		curMaxScore?: number;
-		curScore?: number;
+		scoresMap?: SvelteMap<number, GradeChange>;
 	}
 
-	let { assignment, curMaxScore = $bindable(assignment.MaxScore), curScore = $bindable(assignment.Score) }: Props = $props();
+	let { assignment, scoresMap = $bindable() }: Props = $props();
+
 	function isGradeBook(
 		assign: Assignment | GradebookAssignment,
 	): assign is GradebookAssignment {
 		return (assign as Assignment).LastUpdated === undefined;
 	}
-	const trunc = (x: string) => x.substring(6, x.length - 2);
 
-	let dd = trunc(
+	let curMaxScore = $state(assignment.MaxScore);
+	let curScore = $state(assignment.Score);
+	const curPercent = $derived(
+		curMaxScore == 0 || Number.isNaN(curScore / curMaxScore)
+			? ""
+			: ` (${((curScore / curMaxScore) * 100).toPrecision(4)}%)`,
+	);
+	if (isGradeBook(assignment) && scoresMap !== undefined)
+		$effect(() => {
+			scoresMap.set(assignment.AssignmentNumber, {
+				Category: assignment.Category,
+				Score: curScore,
+				MaxScore: curMaxScore,
+				AssignmentNumber: assignment.AssignmentNumber,
+				Mark: "",
+			});
+		});
+
+	let date = formatAeriesDate(
 		!isGradeBook(assignment) ? assignment.LastUpdated : assignment.DateDue,
 	);
-
-	//let curMaxScore = $state(assignment.MaxScore);
-	//let curScore = $state(assignment.Score);
-	const curPercent = $derived(curMaxScore == 0 ? "" : ` (${(curScore/curMaxScore * 100).toPrecision(4)}%)`)
-
-	let lastUpdated: string;
-	if (lastUpdated = dd)
-		lastUpdated = new Date(parseInt(lastUpdated.substring(6, lastUpdated.length - 2), 10)).toLocaleString();
-	else
-		lastUpdated = "Not Yet Updated";
-
 </script>
 
-<!-- <li
-	transition:fade|global={{ duration: 200 }}
-	class="flex flex-col border-2 rounded-md my-1 p-2 bg-gradient-to-tr from-indigo-100 to-blue-100 border-slate-200"
+<Box
+	title={!isGradeBook(assignment)
+		? assignment.AssignmentName
+		: assignment.Description}
+	subtitle={isGradeBook(assignment)
+		? assignment.Category
+		: assignment.GradebookName}
+	subright={date}
 >
-	<div class="flex flex-row justify-between text-xl">
+	{#snippet right()}
 		{#if !isGradeBook(assignment)}
-			<p>{assignment.AssignmentName}</p>
 			<p>
 				{assignment.Score}/{assignment.MaxScore} ({assignment.Percentage}%)
 			</p>
 		{:else}
-			<p>{assignment.Description}</p>
-			<span
-				><input
-					class="w-10 p-0 h-full bg-blue-50 rounded-md border-slate-100 text-center"
-					type="number"
-					bind:value={curScore}
-				/>/<input
-					class="w-10 p-0 h-full bg-blue-50 rounded-md border-slate-100 text center"
-					type="number"
+			<span>
+				<TextInput numeric bind:value={curScore} />/<TextInput
+					numeric
 					bind:value={curMaxScore}
 				/>{curPercent}</span
 			>
 		{/if}
-		// <p>
-		//	{assignment.Score}/{assignment.MaxScore} ({!isGradeBook(assignment) ? assignment.Percentage : assignment.Percent}%)
-		//</p>
-	</div>
-	<div class="flex flex-row justify-between">
-		{#if !isGradeBook(assignment)}
-			<p>{assignment.GradebookName}</p>
-		{:else}
-			<p>{assignment.Category}</p>
-		{/if}
-		<p>{new Date(parseInt(dd, 10)).toLocaleString()}</p>
-	</div>
-</li> -->
-
-{#snippet title()}
-	{#if !isGradeBook(assignment)}
-		<p>{assignment.AssignmentName}</p>
-	{:else}
-		<p>{assignment.Description}</p>
-	{/if}
-{/snippet}
-
-{#snippet right()}
-	{#if !isGradeBook(assignment)}
-		<p>
-			{assignment.Score}/{assignment.MaxScore} ({assignment.Percentage}%)
-		</p>
-	{:else}
-	<span
-	><input
-		class="w-10 p-0 h-full bg-blue-50 rounded-md border-slate-100 text-center"
-		type="number"
-		bind:value={curScore}
-	/>/<input
-		class="w-10 p-0 h-full bg-blue-50 rounded-md border-slate-100 text center"
-		type="number"
-		bind:value={curMaxScore}
-	/>{curPercent}</span
->
-	{/if}
-{/snippet}
-
-{#snippet subtitle()}
-{#if !isGradeBook(assignment)}
-<p>{assignment.GradebookName}</p>
-{:else}
-<p>{assignment.Category}</p>
-{/if}
-{/snippet}
-
-{#snippet subright()}
-	<p>{lastUpdated}</p>
-{/snippet}
-
-<Box
-	{title}
-	{right}
-	{subtitle}
-	{subright}
-/>
+	{/snippet}
+</Box>

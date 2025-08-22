@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { ClassSummary } from "$lib/api-types";
+	import { formatAeriesDate } from "$lib/utils";
 	import Box from "$lib/components/Box.svelte";
 
 	interface Props {
@@ -8,14 +9,12 @@
 
 	let p: Props = $props();
 
-	let lastUpdated;
-	if ((lastUpdated = p.classSummary.LastUpdated))
-		lastUpdated = new Date(parseInt(lastUpdated.substring(6, lastUpdated.length - 2))).toLocaleString();
-	else lastUpdated = "Not Yet Updated";
-
+	const lastUpdated = formatAeriesDate(p.classSummary.LastUpdated);
 </script>
 
-<a href={"./classes/class?classId=" + p.classSummary.GradeBookNumber.toString()}>
+<a
+	href={`./classes/class?classId=${p.classSummary.GradeBookNumber.toString()}&term=${p.classSummary.TermCode}`}
+>
 	<Box
 		title={p.classSummary.CourseTitle}
 		right={`${p.classSummary.CurrentMark} (${p.classSummary.Average || p.classSummary.Percent}%)`}

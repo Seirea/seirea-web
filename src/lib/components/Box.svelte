@@ -1,17 +1,18 @@
 <script lang="ts">
 	import type { Snippet } from "svelte";
+	import { fly } from "svelte/transition";
 
 	interface Props {
-		title: Snippet | string,
-		right: Snippet | string,
-		subtitle: Snippet | string,
-		subright: Snippet | string,
+		title: Snippet | string;
+		right: Snippet | string;
+		subtitle: Snippet | string;
+		subright: Snippet | string;
 	}
 
 	let { title, subtitle, right, subright }: Props = $props();
 	function isSnippet(val: Snippet | string): val is Snippet {
 		return !(typeof val == "string");
-	} 
+	}
 </script>
 
 {#snippet part(val: Snippet | string)}
@@ -24,6 +25,7 @@
 
 <li
 	class="flex flex-col border-2 rounded-md my-1 p-2 bg-gradient-to-tr from-indigo-100 to-blue-100 border-slate-200"
+	in:fly|global={{ y: 200 }}
 >
 	<div class="flex flex-row justify-between text-xl">
 		{@render part(title)}

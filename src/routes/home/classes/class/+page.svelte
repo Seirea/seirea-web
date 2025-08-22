@@ -3,13 +3,15 @@
 	import type { PageData } from "./$types";
 	import type {
 		ClassSummary,
-		Assignment,
 		Gradebook,
 		GradebookAssignment,
+		GradeChange,
 	} from "$lib/api-types";
 	import type { AeriesApi } from "$lib/api";
 	import { groupBy } from "$lib/utils";
 	import AssignmentComponent from "$lib/components/AssignmentComponent.svelte";
+	import { SvelteMap } from "svelte/reactivity";
+	import TextInput from "$lib/components/TextInput.svelte";
 
 	let { data }: { data: PageData } = $props();
 
@@ -27,15 +29,20 @@
 		if (g.typeOf == "average") return g.value!.toString();
 		return null;
 	};
-	type GradeChange = {
-		maxScore: number;
-		score: number;
-		category: string;
-		classId: number;
-	};
-	const changes = $state(new Map<number, GradeChange>());
-
 	let grade: Grade = $state({ typeOf: "empty", value: null, mark: null });
+
+	let changes = $state(new SvelteMap<number, GradeChange>());
+	$effect(() => {
+		api
+			.predictGrade(data.classId!, data.termCode!, Array.from(changes.values()))
+			.then(
+				(ret) =>
+					(grade = { typeOf: "percent", value: ret.Percent, mark: ret.Mark }),
+			);
+	});
+
+	$inspect(changes);
+
 	const groupByCategory = (t: GradebookAssignment[]) =>
 		groupBy(t, (assign: GradebookAssignment) => assign.Category);
 
@@ -48,7 +55,7 @@
 			if (val != null) {
 				console.log("getting assignments for", classId);
 				summaryPromise = api
-					.getClassSummaries()
+					.getClassSummaries(null)
 					.then(
 						(summaries) =>
 							summaries.find((summary) => summary.GradeBookNumber == classId) ??
@@ -63,16 +70,48 @@
 						}),
 				);
 
-				console.log(
-					await api.predictGrade(classId, data.termCode, [
-						{ Category: "Assessments", Score: 240, MaxScore: 250, AssignmentNumber: -1, Mark: "" },
-					]),
-				);
 				console.log(await api.getAttendance());
 			}
 		});
 	}
+	let dial: HTMLDialogElement;
+
+	let dialScore = $state(0);
+	let dialMaxScore = $state(0);
+	let dialName = $state("Unnamed Assignment");
+	let dialCategory = $state("");
+	let assignId = $state(-1);
+
+	function addAssign() {
+		dial.close();
+		assignId++;
+	}
 </script>
+
+<dialog
+	bind:this={dial}
+	id="add-assign"
+	class="bg-blue-200 rounded-md border-transparent p-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 fixed"
+>
+	<div class="flex flex-col gap-4">
+		<label
+			>Name:
+			<TextInput bind:value={dialName} --width="20rem" />
+		</label>
+		<label
+			>Category:
+			<TextInput bind:value={dialCategory} --width="18.5rem" />
+		</label>
+		<label
+			>Score:
+			<TextInput numeric bind:value={dialScore} />/<TextInput
+				numeric
+				bind:value={dialMaxScore}
+			/>
+		</label>
+		<button onclick={addAssign}>Add</button>
+	</div>
+</dialog>
 
 {#await summaryPromise}
 	<h1>Loading ...</h1>
@@ -86,6 +125,7 @@
 				{summary.GradeBookName} - {gradeToString(grade) ??
 					(summary?.Average || summary?.Percent + "%")}
 			</h1>
+			<button onclick={() => dial.show()}>+</button>
 			{#await gradebookPromise}
 				<p>Loading assignments ...</p>
 			{:then gradebook}
@@ -98,7 +138,7 @@
 								)}
 								<li>{categoryName} - {category?.Percent}</li>
 								{#each assignments as assignment}
-									<AssignmentComponent {assignment}></AssignmentComponent>
+									<AssignmentComponent scoresMap={changes} {assignment} />
 								{/each}
 							{/each}
 						</ul>

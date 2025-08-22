@@ -258,11 +258,9 @@ export interface Gradebook {
 	Categories: Category[];
 }
 
-
-
 export enum AbscenceType {
 	PRESENT = 0,
-	TARDY = 5
+	TARDY = 5,
 }
 
 export interface AttendancePeriod {
@@ -271,7 +269,7 @@ export interface AttendancePeriod {
 	CourseTitle: string | null;
 	Description: string;
 	Period: number;
-	PeriodTitle: string | null
+	PeriodTitle: string | null;
 }
 
 export interface AttendanceDetail {
@@ -291,7 +289,6 @@ export type Attendance = {
 	StudentID: number;
 	StudentRedFlag: unknown | null;
 }[];
-
 
 // DOUBLE CHECK COULD BE FAKE
 export interface SearchedSchool {
@@ -332,12 +329,10 @@ export interface SearchedSchool {
 	HighGrade: number;
 	LowGrade: number;
 	LocationType: number;
-  }
-  
-  // For an array of schools
-  type SearchResult = SearchedSchool[];
-  
+}
 
+// For an array of schools
+type SearchResult = SearchedSchool[];
 
 // NON AERIES TYPES
 export interface GradeChange {
@@ -346,7 +341,4 @@ export interface GradeChange {
 	Category: string;
 	AssignmentNumber: number;
 	Mark: "";
-};
-
-
-export type TermCode = "F" | "S" | string;
+}
