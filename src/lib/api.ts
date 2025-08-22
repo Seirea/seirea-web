@@ -9,6 +9,8 @@ import {
 	type Student,
 	type AuthenticatedStudent,
 	type Gradebook,
+	type Attendance,
+	type GradeChange,
 } from "./api-types";
 
 import { generateKeyFromTimestamp, getTimeFormatted } from "./auth/keygen";
@@ -145,9 +147,7 @@ export class AeriesApi {
 		return await resp.json();
 	}
 
-	public async getClassSummaries(
-		term: string = "Current Terms"
-	): Promise<ClassSummary[]> {
+	public async getClassSummaries(term: string | null): Promise<ClassSummary[]> {
 		if (!this.isInitialized()) throw new UninitializedApiError();
 		let resp = await fetch(
 			this.genRequest(
@@ -160,7 +160,9 @@ export class AeriesApi {
 		let datum = (await resp.json()) as ClassSummaryDatum[];
 
 		return datum
-			.map((datum) => datum.ClassSummary.filter((x) => x.Term == term))
+			.map((datum) =>
+				datum.ClassSummary.filter((x) => term == null || x.Term == term)
+			)
 			.flat();
 	}
 	public async getGradebook(
@@ -174,6 +176,50 @@ export class AeriesApi {
 				`/${get(this.authedStudent)!.Student.Demographics.SchoolCode}/student/${
 					get(this.authedStudent)!.Student.Demographics.StudentID
 				}/gradebooks/${gradebookNumber}/${term}`
+			)
+		);
+		return await resp.json();
+	}
+
+	public async predictGrade(
+		classId: number,
+		termCode: string,
+		changes: GradeChange[]
+	) {
+		if (!this.isInitialized()) throw new UninitializedApiError();
+
+		let resp = await fetch(
+			this.genRequest("POST", "/calculategradebookscores", {
+				gn: {
+					Assignments: changes,
+					GradebookNumber: classId,
+					TermCode: termCode,
+				},
+				id: get(this.authedStudent)!.Student.Demographics.StudentID,
+				sc: get(this.authedStudent)!.Student.Demographics.SchoolCode,
+			})
+		);
+		return await resp.json();
+	}
+	public async getReportCards() {
+		if (!this.isInitialized()) throw new UninitializedApiError();
+		let resp = await fetch(
+			this.genRequest(
+				"GET",
+				`/reportcardhistory/${
+					get(this.authedStudent)!.Student.Demographics.StudentID
+				}`
+			)
+		);
+		return await resp.json();
+	}
+	public async getAttendance(): Promise<Attendance> {
+		if (!this.isInitialized()) throw new UninitializedApiError();
+		const st = get(this.authedStudent)!;
+		let resp = await fetch(
+			this.genRequest(
+				"GET",
+				`/${st.Student.Demographics.SchoolCode}/student/${st.Student.Demographics.StudentID}/schoolyearattendance`
 			)
 		);
 		return await resp.json();
